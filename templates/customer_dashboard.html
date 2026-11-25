@@ -1,0 +1,1001 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Dashboard | LaborConnect{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --lc-navy: #142f50;
+        --lc-blue: #2586e8;
+        --lc-muted: #71839b;
+        --lc-bg: #f3f6fb;
+        --lc-border: #e4ebf4;
+    }
+
+    .customer-layout {
+        min-height: 100vh;
+        display: flex;
+        background: var(--lc-bg);
+        color: var(--lc-navy);
+    }
+
+    .customer-sidebar {
+        width: 270px;
+        flex: 0 0 270px;
+        padding: 28px 20px;
+        background: var(--lc-navy);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+    }
+
+    .customer-logo {
+        padding: 8px 12px 32px;
+        color: #fff;
+        text-decoration: none;
+        font-size: 27px;
+        font-weight: 800;
+    }
+
+    .customer-logo span { color: var(--lc-blue); }
+
+    .customer-user {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 18px 10px;
+        border-top: 1px solid rgba(255,255,255,.15);
+        border-bottom: 1px solid rgba(255,255,255,.15);
+    }
+
+    .customer-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        background: var(--lc-blue);
+        color: #fff;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .customer-user strong { display: block; font-size: 14px; }
+    .customer-user small { color: #b9cbe0; }
+
+    .customer-nav { padding-top: 28px; }
+    .customer-nav-label {
+        padding: 0 12px;
+        color: #8eafd2;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+    }
+
+    .customer-nav a {
+        display: flex;
+        gap: 13px;
+        align-items: center;
+        margin: 7px 0;
+        padding: 14px 13px;
+        border-radius: 9px;
+        color: #e5edf8;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .customer-nav a:hover,
+    .customer-nav a.active {
+        background: var(--lc-blue);
+        color: #fff;
+    }
+
+    .customer-nav .logout { color: #ffb2b2; }
+    .customer-sidebar-footer {
+        margin-top: auto;
+        padding: 22px 12px 0;
+        border-top: 1px solid rgba(255,255,255,.15);
+        color: #b9cbe0;
+        font-size: 12px;
+    }
+
+    .customer-main { min-width: 0; flex: 1; }
+    .customer-topbar {
+        min-height: 86px;
+        padding: 18px 38px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        background: #fff;
+        border-bottom: 1px solid var(--lc-border);
+    }
+
+    .customer-topbar h1 { margin: 0 0 5px; font-size: 23px; }
+    .customer-topbar p { margin: 0; color: var(--lc-muted); font-size: 14px; }
+
+    .topbar-account {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 650;
+        font-size: 14px;
+    }
+
+    .topbar-account .customer-avatar { width: 42px; height: 42px; }
+
+    .customer-content {
+        max-width: 1500px;
+        margin: 0 auto;
+        padding: 32px 38px 48px;
+    }
+
+    .customer-welcome {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 34px 38px;
+        margin-bottom: 28px;
+        border-radius: 16px;
+        color: #fff;
+        background: linear-gradient(110deg, #17385d, #2787d9);
+    }
+
+    .customer-welcome .eyebrow {
+        color: #d4e8ff;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 2px;
+    }
+
+    .customer-welcome h2 { margin: 10px 0; font-size: 29px; }
+    .customer-welcome p { margin: 0; color: #e8f3ff; }
+    .welcome-emoji { font-size: 58px; }
+
+
+    .customer-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin: 0 0 28px;
+    }
+    .customer-stat-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 20px;
+        background: #fff;
+        border: 1px solid var(--lc-border);
+        border-radius: 13px;
+        box-shadow: 0 4px 14px rgba(20,47,80,.035);
+    }
+    .customer-stat-icon {
+        width: 46px;
+        height: 46px;
+        display: grid;
+        place-items: center;
+        flex: 0 0 46px;
+        border-radius: 12px;
+        background: #e8f2ff;
+        font-size: 21px;
+    }
+    .customer-stat-card strong {
+        display: block;
+        color: var(--lc-navy);
+        font-size: 23px;
+        line-height: 1.2;
+    }
+    .customer-stat-card span {
+        display: block;
+        margin-top: 4px;
+        color: var(--lc-muted);
+        font-size: 12px;
+    }
+
+    .customer-flash {
+        padding: 13px 16px;
+        margin-bottom: 18px;
+        border-radius: 9px;
+        background: #fff0f0;
+        color: #a52b2b;
+    }
+    .customer-flash.success { background: #e7f8ed; color: #176b38; }
+
+    .search-panel {
+        padding: 25px;
+        margin-bottom: 30px;
+        background: #fff;
+        border: 1px solid var(--lc-border);
+        border-radius: 14px;
+    }
+
+    .search-panel h2 { margin: 0 0 7px; font-size: 20px; }
+    .search-panel > p { margin: 0 0 20px; color: var(--lc-muted); }
+
+    .search-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 13px;
+        align-items: end;
+    }
+
+    .search-field label {
+        display: block;
+        margin-bottom: 7px;
+        color: #344b66;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .search-field input,
+    .search-field select {
+        width: 100%;
+        height: 46px;
+        box-sizing: border-box;
+        padding: 0 13px;
+        border: 1px solid #d8e1ec;
+        border-radius: 8px;
+        background: #fff;
+        color: #263d58;
+        font: inherit;
+    }
+
+    .search-button {
+        height: 46px;
+        padding: 0 22px;
+        border: 0;
+        border-radius: 8px;
+        background: var(--lc-blue);
+        color: #fff;
+        font-weight: 750;
+        cursor: pointer;
+    }
+
+    .search-button:hover { background: #176fc5; }
+    .clear-search {
+        display: inline-block;
+        margin-top: 14px;
+        color: var(--lc-blue);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .results-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 15px;
+        margin: 34px 0 18px;
+    }
+
+    .results-heading h2 { margin: 0 0 5px; font-size: 23px; }
+    .results-heading p { margin: 0; color: var(--lc-muted); }
+    .result-count {
+        padding: 8px 12px;
+        border-radius: 20px;
+        background: #e6f2ff;
+        color: #176fc5;
+        font-size: 12px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .worker-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .worker-card {
+        display: flex;
+        flex-direction: column;
+        padding: 23px;
+        background: #fff;
+        border: 1px solid var(--lc-border);
+        border-radius: 14px;
+        transition: transform .2s, box-shadow .2s;
+    }
+
+    .worker-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(20,47,80,.08);
+    }
+
+    .worker-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+
+    .worker-icon {
+        width: 48px;
+        height: 48px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: #e8f2ff;
+        font-size: 23px;
+    }
+
+    .available-tag {
+        padding: 6px 10px;
+        border-radius: 20px;
+        background: #e5f7eb;
+        color: #18723d;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .category-tag {
+        color: #2586d9;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .worker-card h3 { margin: 8px 0; font-size: 19px; color: var(--lc-navy); }
+    .worker-name { margin: 0 0 12px; color: #53677f; font-size: 14px; font-weight: 650; }
+    .worker-description {
+        min-height: 48px;
+        margin: 0 0 15px;
+        color: var(--lc-muted);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .worker-meta {
+        display: grid;
+        gap: 8px;
+        margin: 0 0 18px;
+        padding: 14px 0;
+        border-top: 1px solid #edf1f6;
+        border-bottom: 1px solid #edf1f6;
+        color: #63768e;
+        font-size: 13px;
+    }
+
+    .worker-price {
+        margin-top: auto;
+        color: var(--lc-navy);
+        font-size: 21px;
+        font-weight: 800;
+    }
+
+    .worker-price small {
+        color: var(--lc-muted);
+        font-size: 11px;
+        font-weight: 500;
+    }
+
+    .contact-number { margin-top: 8px; color: var(--lc-blue); font-size: 13px; font-weight: 700; }
+
+    .booking-details {
+        margin-top: 18px;
+        border-top: 1px solid #edf1f6;
+        padding-top: 15px;
+    }
+
+    .booking-details summary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 18px;
+        border-radius: 8px;
+        background: var(--lc-blue);
+        color: #fff;
+        font-size: 13px;
+        font-weight: 750;
+        cursor: pointer;
+        list-style: none;
+        user-select: none;
+    }
+
+    .booking-details summary::-webkit-details-marker { display: none; }
+    .booking-details summary:hover { background: #176fc5; }
+    .booking-details[open] summary { margin-bottom: 14px; }
+
+    .booking-form {
+        display: grid;
+        gap: 11px;
+        padding: 15px;
+        border: 1px solid var(--lc-border);
+        border-radius: 10px;
+        background: #f8fbff;
+    }
+
+    .booking-form label {
+        display: block;
+        margin-bottom: 5px;
+        color: #344b66;
+        font-size: 12px;
+        font-weight: 750;
+    }
+
+    .booking-form input,
+    .booking-form textarea {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 11px;
+        border: 1px solid #d8e1ec;
+        border-radius: 7px;
+        background: #fff;
+        color: #263d58;
+        font: inherit;
+        font-size: 13px;
+    }
+
+    .booking-form textarea {
+        min-height: 76px;
+        resize: vertical;
+    }
+
+    .booking-submit {
+        min-height: 42px;
+        border: 0;
+        border-radius: 8px;
+        background: #142f50;
+        color: #fff;
+        font-weight: 750;
+        cursor: pointer;
+    }
+
+    .booking-submit:hover { background: #0d223c; }
+
+    .empty-results {
+        padding: 55px 20px;
+        text-align: center;
+        background: #fff;
+        border: 1px solid var(--lc-border);
+        border-radius: 14px;
+    }
+
+    .empty-results .empty-icon { font-size: 42px; }
+    .empty-results h3 { margin: 15px 0 7px; }
+    .empty-results p { margin: 0; color: var(--lc-muted); }
+
+    .booking-history {
+        margin: 30px 0;
+        padding: 25px;
+        background: #fff;
+        border: 1px solid var(--lc-border);
+        border-radius: 14px;
+    }
+    .booking-history-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+    .booking-history-heading h2 { margin: 0 0 5px; font-size: 22px; }
+    .booking-history-heading p { margin: 0; color: var(--lc-muted); font-size: 14px; }
+    .booking-table-wrap { width: 100%; overflow-x: auto; }
+    .booking-table {
+        width: 100%;
+        min-width: 850px;
+        border-collapse: collapse;
+        text-align: left;
+    }
+    .booking-table th {
+        padding: 14px 12px;
+        background: #f4f7fb;
+        color: #405570;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+    .booking-table td {
+        padding: 15px 12px;
+        border-bottom: 1px solid #edf1f6;
+        color: #526780;
+        font-size: 13px;
+        vertical-align: middle;
+    }
+    .booking-table tbody tr:last-child td { border-bottom: 0; }
+    .cancel-booking-form { margin: 0; }
+    .cancel-booking-button {
+        padding: 8px 12px; border: 0; border-radius: 7px;
+        background: #fff0f0; color: #b42323; font-size: 12px;
+        font-weight: 750; cursor: pointer; white-space: nowrap;
+    }
+    .cancel-booking-button:hover { background: #ffe0e0; }
+    .booking-no-action { color: var(--lc-muted); font-size: 12px; }
+    .review-form {
+        min-width: 190px;
+        display: grid;
+        gap: 8px;
+        padding: 10px;
+        border: 1px solid var(--lc-border);
+        border-radius: 9px;
+        background: #f8fbff;
+    }
+    .review-form label { font-size: 12px; font-weight: 750; color: #344b66; }
+    .review-form select, .review-form textarea {
+        width: 100%; box-sizing: border-box; padding: 8px;
+        border: 1px solid #d8e1ec; border-radius: 7px;
+        font: inherit; font-size: 12px; background: #fff;
+    }
+    .review-form textarea { min-height: 58px; resize: vertical; }
+    .review-submit {
+        border: 0; border-radius: 7px; padding: 9px 10px;
+        background: var(--lc-blue); color: #fff; font-weight: 750; cursor: pointer;
+    }
+    .review-display { min-width: 170px; color: #526780; font-size: 12px; line-height: 1.5; }
+    .review-stars { color: #e6a000; font-size: 16px; letter-spacing: 1px; }
+    .laborer-rating { margin: 0 0 10px; color: #63768e; font-size: 13px; }
+    .laborer-rating .review-stars { font-size: 15px; }
+
+    .booking-detail-button {
+        display: inline-block; padding: 8px 12px; border: 0; border-radius: 7px;
+        background: #e8f2ff; color: #176fc5; font-size: 12px;
+        font-weight: 750; cursor: pointer; white-space: nowrap;
+    }
+    .booking-detail-button:hover { background: #d9eaff; }
+    .booking-detail-dialog {
+        position: fixed;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        margin: 0;
+        width: min(460px, calc(100vw - 36px));
+        max-width: calc(100vw - 36px);
+        max-height: min(80vh, 680px);
+        overflow-y: auto;
+        box-sizing: border-box;
+        padding: 24px;
+        border: 1px solid var(--lc-border);
+        border-radius: 14px;
+        color: var(--lc-navy);
+        background: #fff;
+        box-shadow: 0 22px 60px rgba(12,35,62,.24);
+    }
+    .booking-detail-dialog::backdrop { background: rgba(10,25,45,.55); }
+    .booking-detail-dialog h3 { margin: 0 0 16px; font-size: 19px; }
+    .booking-detail-row { margin: 11px 0; color: #526780; font-size: 13px; line-height: 1.55; }
+    .booking-detail-row strong { color: var(--lc-navy); }
+    .booking-detail-close {
+        display: block; margin: 20px 0 0 auto; padding: 9px 18px;
+        border: 0; border-radius: 8px; background: var(--lc-blue);
+        color: #fff; font-weight: 700; cursor: pointer;
+    }
+
+
+    .booking-table strong { color: var(--lc-navy); }
+    .booking-status {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+        text-transform: capitalize;
+    }
+    .status-pending { background: #fff3d9; color: #986000; }
+    .status-accepted, .status-completed { background: #e4f7eb; color: #18723d; }
+    .status-rejected { background: #ffe8e8; color: #b42323; }
+    .status-in-progress { background: #e5f1ff; color: #176fc5; }
+    .status-cancelled { background: #edf0f4; color: #5d6878; }
+    .booking-empty {
+        padding: 35px 18px;
+        border: 1px dashed #d8e1ec;
+        border-radius: 10px;
+        text-align: center;
+        color: var(--lc-muted);
+    }
+    .booking-empty strong { display: block; margin-bottom: 6px; color: var(--lc-navy); }
+
+    .customer-footer {
+        padding: 23px;
+        text-align: center;
+        background: #fff;
+        color: var(--lc-muted);
+        font-size: 13px;
+    }
+
+    @media (max-width: 1150px) {
+        .worker-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .customer-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .search-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .customer-sidebar { width: 235px; flex-basis: 235px; }
+    }
+
+    @media (max-width: 760px) {
+        .customer-layout { display: block; }
+        .customer-sidebar { width: 100%; }
+        .customer-sidebar-footer { margin-top: 25px; }
+        .customer-topbar { padding: 18px 20px; }
+        .customer-content { padding: 20px; }
+        .customer-welcome { padding: 25px; }
+        .customer-welcome h2 { font-size: 23px; }
+        .welcome-emoji { display: none; }
+        .worker-grid, .search-grid, .customer-stats { grid-template-columns: 1fr; }
+        .results-heading { align-items: start; flex-direction: column; }
+    }
+</style>
+
+<div class="customer-layout">
+    <aside class="customer-sidebar">
+        <a href="{{ url_for('home') }}" class="customer-logo">Labor<span>Connect</span></a>
+
+        <div class="customer-user">
+            <div class="customer-avatar">{{ session.get('full_name', 'C')[0]|upper }}</div>
+            <div>
+                <strong>{{ session.get('full_name', 'Customer') }}</strong>
+                <small>Customer Account</small>
+            </div>
+        </div>
+
+        <nav class="customer-nav">
+            <p class="customer-nav-label">CUSTOMER MENU</p>
+            <a href="{{ url_for('customer_dashboard') }}" class="active"><span>▦</span> Dashboard</a>
+            <a href="#find-workers"><span>🔎</span> Find Workers</a>
+            <a href="#available-services"><span>🛠️</span> Available Services</a>
+            <a href="#my-bookings"><span>📋</span> My Bookings</a>
+            <a href="{{ url_for('logout') }}" class="logout"><span>↪</span> Logout</a>
+        </nav>
+
+        <div class="customer-sidebar-footer">
+            <strong>LaborConnect</strong><br>
+            Skilled Workers Marketplace
+        </div>
+    </aside>
+
+    <main class="customer-main">
+        <header class="customer-topbar">
+            <div>
+                <h1>Customer Dashboard</h1>
+                <p>Find trusted professionals for your service needs.</p>
+            </div>
+            <div class="topbar-account">
+                <div class="customer-avatar">{{ session.get('full_name', 'C')[0]|upper }}</div>
+                <span>{{ session.get('full_name', 'Customer') }}</span>
+            </div>
+        </header>
+
+        <div class="customer-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="customer-flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endwith %}
+
+            <section class="customer-welcome">
+                <div>
+                    <span class="eyebrow">LABORCONNECT CUSTOMER SPACE</span>
+                    <h2>Welcome back, {{ session.get('full_name', 'Customer') }}!</h2>
+                    <p>Discover skilled workers and compare services in your area.</p>
+                </div>
+                <div class="welcome-emoji">👋</div>
+            </section>
+
+
+            <section class="customer-stats" aria-label="Booking overview">
+                <article class="customer-stat-card">
+                    <div class="customer-stat-icon">📋</div>
+                    <div>
+                        <strong>{{ customer_bookings|length }}</strong>
+                        <span>Total Bookings</span>
+                    </div>
+                </article>
+                <article class="customer-stat-card">
+                    <div class="customer-stat-icon">⏳</div>
+                    <div>
+                        <strong>{{ customer_bookings|selectattr('job_status', 'equalto', 'Pending')|list|length }}</strong>
+                        <span>Pending Requests</span>
+                    </div>
+                </article>
+                <article class="customer-stat-card">
+                    <div class="customer-stat-icon">✓</div>
+                    <div>
+                        <strong>{{ customer_bookings|selectattr('job_status', 'equalto', 'Accepted')|list|length }}</strong>
+                        <span>Accepted Bookings</span>
+                    </div>
+                </article>
+                <article class="customer-stat-card">
+                    <div class="customer-stat-icon">🛠️</div>
+                    <div>
+                        <strong>{{ services|length }}</strong>
+                        <span>Available Services</span>
+                    </div>
+                </article>
+            </section>
+
+            <section class="search-panel" id="find-workers">
+                <h2>Find the Right Worker</h2>
+                <p>Filter professionals by service, location, budget, experience and customer ratings.</p>
+
+                <form method="GET" action="{{ url_for('customer_dashboard') }}">
+                    <div class="search-grid">
+                        <div class="search-field">
+                            <label for="q">Search</label>
+                            <input type="text" id="q" name="q"
+                                   value="{{ search_text }}"
+                                   placeholder="e.g. plumbing, electrician">
+                        </div>
+
+                        <div class="search-field">
+                            <label for="category">Service Category</label>
+                            <select id="category" name="category">
+                                <option value="">All Categories</option>
+                                {% for item in categories %}
+                                    <option value="{{ item }}" {% if selected_category == item %}selected{% endif %}>
+                                        {{ item }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="search-field">
+                            <label for="location">City / Area</label>
+                            <input type="text" id="location" name="location"
+                                   value="{{ selected_location }}"
+                                   placeholder="e.g. Peradeniya">
+                        </div>
+
+                        <div class="search-field">
+                            <label for="district">District</label>
+                            <select id="district" name="district">
+                                <option value="">All Districts</option>
+                                {% for item in ['Ampara','Anuradhapura','Badulla','Batticaloa','Colombo','Galle','Gampaha','Hambantota','Jaffna','Kalutara','Kandy','Kegalle','Kilinochchi','Kurunegala','Mannar','Matale','Matara','Monaragala','Mullaitivu','Nuwara Eliya','Polonnaruwa','Puttalam','Ratnapura','Trincomalee','Vavuniya'] %}
+                                    <option value="{{ item }}" {% if selected_district == item %}selected{% endif %}>{{ item }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="search-field">
+                            <label for="availability">Availability</label>
+                            <select id="availability" name="availability">
+                                <option value="available" {% if selected_availability == 'available' %}selected{% endif %}>Available only</option>
+                                <option value="unavailable" {% if selected_availability == 'unavailable' %}selected{% endif %}>Unavailable only</option>
+                                <option value="all" {% if selected_availability == 'all' %}selected{% endif %}>All laborers</option>
+                            </select>
+                        </div>
+
+                        <div class="search-field">
+                            <label for="max_wage">Maximum Daily Wage (LKR)</label>
+                            <input type="number" id="max_wage" name="max_wage" min="0" step="100"
+                                   value="{{ selected_max_wage }}" placeholder="e.g. 5000">
+                        </div>
+
+                        <div class="search-field">
+                            <label for="min_rating">Minimum Rating</label>
+                            <select id="min_rating" name="min_rating">
+                                <option value="">Any Rating</option>
+                                <option value="3" {% if selected_min_rating == '3' %}selected{% endif %}>3+ Stars</option>
+                                <option value="4" {% if selected_min_rating == '4' %}selected{% endif %}>4+ Stars</option>
+                                <option value="4.5" {% if selected_min_rating == '4.5' %}selected{% endif %}>4.5+ Stars</option>
+                            </select>
+                        </div>
+
+                        <div class="search-field">
+                            <label for="experience">Minimum Experience</label>
+                            <select id="experience" name="experience">
+                                <option value="">Any Experience</option>
+                                <option value="1" {% if selected_experience == '1' %}selected{% endif %}>1+ Years</option>
+                                <option value="3" {% if selected_experience == '3' %}selected{% endif %}>3+ Years</option>
+                                <option value="5" {% if selected_experience == '5' %}selected{% endif %}>5+ Years</option>
+                                <option value="10" {% if selected_experience == '10' %}selected{% endif %}>10+ Years</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="search-button">Search Workers</button>
+                    </div>
+
+                    {% if search_text or selected_category or selected_location or selected_district or selected_availability != 'available' or selected_min_rating or selected_max_wage or selected_experience %}
+                        <a class="clear-search" href="{{ url_for('customer_dashboard') }}">Clear all filters</a>
+                    {% endif %}
+                </form>
+            </section>
+
+            <section class="booking-history" id="my-bookings">
+                <div class="booking-history-heading">
+                    <div>
+                        <h2>My Booking Requests</h2>
+                        <p>Track your service requests and check the latest status.</p>
+                    </div>
+                    <span class="result-count">{{ customer_bookings|length }} booking(s)</span>
+                </div>
+
+                {% if customer_bookings %}
+                    <div class="booking-table-wrap">
+                        <table class="booking-table">
+                            <thead>
+                                <tr>
+                                    <th>Booking ID</th>
+                                    <th>Service</th>
+                                    <th>Laborer</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Details</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in customer_bookings %}
+                                    {% set status_value = (booking.job_status or 'Pending')|lower|replace(' ', '-')|replace('_', '-') %}
+                                    <tr>
+                                        <td><strong>#{{ booking.booking_id }}</strong></td>
+                                        <td>{{ booking.service_name or 'Service unavailable' }}</td>
+                                        <td>{{ booking.laborer_name }}</td>
+                                        <td>{{ booking.scheduled_date.strftime('%d %b %Y') if booking.scheduled_date else '—' }}</td>
+                                        <td>
+    {{ booking.scheduled_time|string if booking.scheduled_time else '-' }}
+</td>
+                                        <td>{{ booking.job_location or '—' }}</td>
+                                        <td><span class="booking-status status-{{ status_value }}">{{ booking.job_status or 'Pending' }}</span></td>
+                                        <td>
+                                            <button type="button" class="booking-detail-button"
+                                                    onclick="document.getElementById('booking-details-{{ booking.booking_id }}').showModal()">
+                                                View Details
+                                            </button>
+                                            <dialog class="booking-detail-dialog" id="booking-details-{{ booking.booking_id }}">
+                                                <h3>Booking #{{ booking.booking_id }} Details</h3>
+                                                <div class="booking-detail-row"><strong>Service:</strong> {{ booking.service_name or 'Service unavailable' }}</div>
+                                                <div class="booking-detail-row"><strong>Laborer:</strong> {{ booking.laborer_name or '—' }}</div>
+                                                <div class="booking-detail-row"><strong>Scheduled date:</strong> {{ booking.scheduled_date.strftime('%d %b %Y') if booking.scheduled_date else '—' }}</div>
+                                                <div class="booking-detail-row"><strong>Scheduled time:</strong> {{ booking.scheduled_time|string if booking.scheduled_time else '—' }}</div>
+                                                <div class="booking-detail-row"><strong>Job location:</strong> {{ booking.job_location or '—' }}</div>
+                                                <div class="booking-detail-row"><strong>Job description:</strong> {{ booking.job_description or 'No additional description provided.' }}</div>
+                                                <div class="booking-detail-row"><strong>Request submitted:</strong> {{ booking.created_at.strftime('%d %b %Y, %I:%M %p') if booking.created_at else '—' }}</div>
+                                                <div class="booking-detail-row"><strong>Current status:</strong> {{ booking.job_status or 'Pending' }}</div>
+                                                <form method="dialog"><button type="submit" class="booking-detail-close">Close</button></form>
+                                            </dialog>
+                                        </td>
+                                        <td>
+                                            {% if (booking.job_status or 'Pending') == 'Pending' %}
+                                                <form class="cancel-booking-form" method="POST"
+                                                      action="{{ url_for('cancel_customer_booking', booking_id=booking.booking_id) }}"
+                                                      onsubmit="return confirm('Are you sure you want to cancel this booking request?');">
+                                                    <button type="submit" class="cancel-booking-button">Cancel Request</button>
+                                                </form>
+                                            {% elif (booking.job_status or '') == 'Completed' and not booking.review_id %}
+                                                <form class="review-form" method="POST"
+                                                      action="{{ url_for('submit_booking_review', booking_id=booking.booking_id) }}">
+                                                    <label for="rating-{{ booking.booking_id }}">Rate this service</label>
+                                                    <select id="rating-{{ booking.booking_id }}" name="rating" required>
+                                                        <option value="">Select stars</option>
+                                                        <option value="5">★★★★★ - Excellent</option>
+                                                        <option value="4">★★★★ - Very Good</option>
+                                                        <option value="3">★★★ - Good</option>
+                                                        <option value="2">★★ - Fair</option>
+                                                        <option value="1">★ - Poor</option>
+                                                    </select>
+                                                    <textarea name="review" maxlength="1000" placeholder="Write a short review (optional)"></textarea>
+                                                    <button type="submit" class="review-submit">Submit Review</button>
+                                                </form>
+                                            {% elif booking.review_id %}
+                                                <div class="review-display">
+                                                    <div class="review-stars">{{ '★' * (booking.customer_rating|int) }}{{ '☆' * (5 - (booking.customer_rating|int)) }}</div>
+                                                    <strong>Review submitted</strong>
+                                                    {% if booking.customer_review %}<div>{{ booking.customer_review }}</div>{% endif %}
+                                                </div>
+                                            {% else %}
+                                                <span class="booking-no-action">No action</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="booking-empty">
+                        <strong>No booking requests yet</strong>
+                        Your submitted service booking requests will appear here.
+                    </div>
+                {% endif %}
+            </section>
+
+            <section id="available-services">
+                <div class="results-heading">
+                    <div>
+                        <h2>Available Services</h2>
+                        <p>Browse services published by registered laborers.</p>
+                    </div>
+                    <span class="result-count">{{ services|length }} result(s)</span>
+                </div>
+
+                {% if services %}
+                    <div class="worker-grid">
+                        {% for service in services %}
+                            <article class="worker-card">
+                                <div class="worker-card-top">
+                                    <div class="worker-icon">🛠️</div>
+                                    <span class="available-tag">Available</span>
+                                </div>
+
+                                <span class="category-tag">{{ service.category }}</span>
+                                <h3>{{ service.service_name }}</h3>
+                                <p class="worker-name">Provided by {{ service.laborer_name }}</p>
+                                <p class="laborer-rating">
+                                    {% if service.review_count|int > 0 %}
+                                        <span class="review-stars">★</span>
+                                        <strong>{{ "%.1f"|format(service.average_rating|float) }}/5</strong>
+                                        ({{ service.review_count }} review(s))
+                                    {% else %}
+                                        <span class="review-stars">☆</span> No reviews yet
+                                    {% endif %}
+                                </p>
+
+                                <p class="worker-description">
+                                    {{ service.service_description or service.laborer_description or 'Professional service offered by this laborer.' }}
+                                </p>
+
+                                <div class="worker-meta">
+                                    <span>📍 {{ service.laborer_location or 'Location not provided' }}{% if service.laborer_district %}, {{ service.laborer_district }}{% endif %}</span>
+                                    <span>⭐ {{ "%.1f"|format(service.average_rating|float) }} / 5 ({{ service.review_count }} reviews)</span>
+                                    <span>🧑‍🔧 {{ service.experience_years or 0 }} years experience</span>
+                                    {% if service.skills %}
+                                        <span>🧰 {{ service.skills }}</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="worker-price">
+                                    Rs. {{ "%.2f"|format(service.price|float) }}
+                                    <small>/ service</small>
+                                </div>
+
+                                {% if service.laborer_phone %}
+                                    <div class="contact-number">☎ {{ service.laborer_phone }}</div>
+                                {% endif %}
+
+                                <details class="booking-details">
+                                    <summary>📅 Book Now</summary>
+                                    <form class="booking-form" method="POST"
+                                          action="{{ url_for('create_booking', service_id=service.service_id) }}">
+                                        <div>
+                                            <label for="booking-date-{{ service.service_id }}">Preferred Date *</label>
+                                            <input id="booking-date-{{ service.service_id }}"
+                                                   type="date" name="scheduled_date"
+                                                   min="{{ today_date }}" required>
+                                        </div>
+                                        <div>
+                                            <label for="booking-time-{{ service.service_id }}">Preferred Time *</label>
+                                            <input id="booking-time-{{ service.service_id }}"
+                                                   type="time" name="scheduled_time" required>
+                                        </div>
+                                        <div>
+                                            <label for="booking-location-{{ service.service_id }}">Job Location *</label>
+                                            <input id="booking-location-{{ service.service_id }}"
+                                                   type="text" name="job_location" maxlength="255"
+                                                   placeholder="Enter the service location" required>
+                                        </div>
+                                        <div>
+                                            <label for="booking-description-{{ service.service_id }}">Job Description</label>
+                                            <textarea id="booking-description-{{ service.service_id }}"
+                                                      name="job_description"
+                                                      placeholder="Describe the work you need (optional)"></textarea>
+                                        </div>
+                                        <button type="submit" class="booking-submit">Submit Booking Request</button>
+                                    </form>
+                                </details>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-results">
+                        <div class="empty-icon">🔎</div>
+                        <h3>No Services Found</h3>
+                        <p>There are no available services matching your search. Try another category or location.</p>
+                    </div>
+                {% endif %}
+            </section>
+        </div>
+
+        <footer class="customer-footer">
+            © 2026 LaborConnect. All Rights Reserved.
+        </footer>
+    </main>
+</div>
+{% endblock %}

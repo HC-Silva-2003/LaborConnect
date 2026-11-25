@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard | LaborConnect{% endblock %}
+{% block content %}
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f6fb;color:#183452;font-family:Arial,sans-serif}
+.admin-layout{min-height:100vh;display:flex}.sidebar{width:245px;background:#153252;color:#fff;padding:28px 20px;flex-shrink:0}
+.brand{font-size:23px;font-weight:800;margin:4px 10px}.sub{color:#b8cce2;font-size:13px;margin:7px 10px 35px}
+.menu-label{color:#8fb4dc;font-size:12px;font-weight:700;letter-spacing:1px;margin:15px 10px}
+.nav a{display:block;color:#eaf2fb;text-decoration:none;padding:13px 14px;margin:5px 0;border-radius:9px;font-size:14px}
+.nav a:hover,.nav a.active{background:#2586e8}.nav .logout{color:#ffb7b7}
+.main{flex:1;min-width:0;padding:30px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:25px}
+h1{margin:0 0 7px;font-size:28px}.muted{color:#7b8da5;margin:0}.admin-user{background:#fff;padding:12px 16px;border-radius:12px;font-weight:bold}
+.welcome{background:linear-gradient(115deg,#173b60,#2586df);color:white;border-radius:18px;padding:28px 32px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center}
+.welcome h2{margin:0 0 8px}.welcome p{margin:0;color:#e0efff}.welcome-icon{font-size:48px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:25px}
+.stat,.section{background:#fff;border:1px solid #e5edf6;border-radius:15px;padding:21px;box-shadow:0 5px 18px #173b6008}
+.stat-top{display:flex;justify-content:space-between;align-items:center;color:#8193aa;font-size:11px;font-weight:800;letter-spacing:.6px}
+.stat-icon{font-size:23px;background:#e8f2ff;border-radius:11px;padding:9px}.stat h3{font-size:30px;margin:15px 0 4px;color:#173b60}.stat small{color:#8b9bb0}
+.section{margin-bottom:22px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:17px}
+.section-head h2{margin:0 0 5px;font-size:20px}.section-head p{margin:0;color:#8293a9;font-size:13px}
+.pill{background:#e8f3ff;color:#1474cc;padding:8px 12px;border-radius:20px;font-size:12px;font-weight:bold;white-space:nowrap}
+.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:650px}th{text-align:left;background:#f3f6fb;color:#506681;padding:13px 11px;font-size:12px}
+td{padding:14px 11px;border-bottom:1px solid #edf1f6;color:#526a85;font-size:13px}tr:last-child td{border-bottom:0}
+.status{display:inline-block;padding:6px 10px;border-radius:20px;background:#e8f7ee;color:#168047;font-size:11px;font-weight:bold}
+.status.pending{background:#fff4df;color:#a86a00}.status.rejected,.status.cancelled{background:#ffe9e9;color:#bd4141}
+.empty{text-align:center;padding:24px;color:#8999ad}.footer{text-align:center;color:#8b9bb0;font-size:12px;padding:12px}
+@media(max-width:1050px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.admin-layout{display:block}.sidebar{width:100%;padding:18px}.sub{margin-bottom:14px}.nav{display:flex;flex-wrap:wrap}.nav a{padding:10px}.main{padding:16px}.topbar{align-items:flex-start;flex-direction:column}.welcome{padding:22px}.stats{gap:10px}.stat{padding:14px}}
+@media(max-width:420px){.stats{grid-template-columns:1fr}}
+</style>
+<div class="admin-layout">
+<aside class="sidebar">
+  <div class="brand">LaborConnect</div><div class="sub">Administration Panel</div>
+  <div class="menu-label">MAIN MENU</div>
+  <nav class="nav">
+    <a class="active" href="{{ url_for('admin_dashboard') }}">▦ &nbsp; Dashboard</a>
+    <a href="{{ url_for('admin_users') }}">♙ &nbsp; Users</a><a href="{{ url_for('admin_services') }}">🔧 &nbsp; Services</a>
+    <a href="{{ url_for('admin_bookings') }}">▣ &nbsp; Bookings</a><a href="{{ url_for('admin_reviews') }}">⭐ &nbsp; Reviews</a>
+    <a href="{{ url_for('admin_payments') }}">💳 &nbsp; Payments</a>
+    <a class="logout" href="{{ url_for('logout') }}">↪ &nbsp; Logout</a>
+  </nav>
+</aside>
+<main class="main">
+  <header class="topbar"><div><h1>Admin Dashboard</h1><p class="muted">Monitor and manage the LaborConnect marketplace.</p></div>
+    <div class="admin-user">👤 {{ session.get('full_name','Administrator') }}</div></header>
+  <section class="welcome"><div><h2>Welcome back, {{ session.get('full_name','Admin') }}!</h2><p>Here is an overview of your platform activity.</p></div><div class="welcome-icon">🛡️</div></section>
+  <section class="stats">
+    <article class="stat"><div class="stat-top">TOTAL CUSTOMERS <span class="stat-icon">👥</span></div><h3>{{ stats.customers }}</h3><small>Registered customers</small></article>
+    <article class="stat"><div class="stat-top">TOTAL LABORERS <span class="stat-icon">🧑‍🔧</span></div><h3>{{ stats.laborers }}</h3><small>Service professionals</small></article>
+    <article class="stat"><div class="stat-top">TOTAL SERVICES <span class="stat-icon">🔧</span></div><h3>{{ stats.services }}</h3><small>Listed services</small></article>
+    <article class="stat"><div class="stat-top">TOTAL BOOKINGS <span class="stat-icon">📅</span></div><h3>{{ stats.bookings }}</h3><small>Customer requests</small></article>
+    <article class="stat"><div class="stat-top">PENDING BOOKINGS <span class="stat-icon">⏳</span></div><h3>{{ stats.pending }}</h3><small>Awaiting response</small></article>
+    <article class="stat"><div class="stat-top">COMPLETED BOOKINGS <span class="stat-icon">✅</span></div><h3>{{ stats.completed }}</h3><small>Completed jobs</small></article>
+    <article class="stat"><div class="stat-top">TOTAL REVIEWS <span class="stat-icon">⭐</span></div><h3>{{ stats.reviews }}</h3><small>Customer feedback</small></article>
+    <article class="stat"><div class="stat-top">OTHER BOOKINGS <span class="stat-icon">📊</span></div><h3>{{ stats.other_bookings }}</h3><small>Other booking statuses</small></article>
+  </section>
+
+  <section class="section" id="users"><div class="section-head"><div><h2>Recent Users</h2><p>Recently registered customers and laborers.</p></div><span class="pill">{{ recent_users|length }} user(s)</span></div>
+  {% if recent_users %}<div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Location</th></tr></thead><tbody>
+  {% for user in recent_users %}<tr><td><strong>{{ user.full_name }}</strong></td><td>{{ user.email }}</td><td>{{ user.phone or '-' }}</td><td>{{ user.role|title }}</td><td>{{ user.location or '-' }}</td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<div class="empty">No user accounts found.</div>{% endif %}</section>
+
+  <section class="section" id="services"><div class="section-head"><div><h2>Recent Services</h2><p>Latest services published by laborers.</p></div><span class="pill">{{ recent_services|length }} service(s)</span></div>
+  {% if recent_services %}<div class="table-wrap"><table><thead><tr><th>Service</th><th>Category</th><th>Laborer</th><th>Price</th><th>Availability</th></tr></thead><tbody>
+  {% for service in recent_services %}<tr><td><strong>{{ service.service_name }}</strong></td><td>{{ service.category }}</td><td>{{ service.laborer_name }}</td><td>Rs. {{ '%.2f'|format(service.price|float) }}</td><td>{{ 'Available' if service.availability_status else 'Unavailable' }}</td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<div class="empty">No services found.</div>{% endif %}</section>
+
+  <section class="section" id="bookings"><div class="section-head"><div><h2>Recent Bookings</h2><p>Latest requests and their statuses.</p></div><span class="pill">{{ recent_bookings|length }} booking(s)</span></div>
+  {% if recent_bookings %}<div class="table-wrap"><table><thead><tr><th>Booking</th><th>Customer</th><th>Laborer</th><th>Service</th><th>Date</th><th>Status</th></tr></thead><tbody>
+  {% for booking in recent_bookings %}<tr><td><strong>#{{ booking.booking_id }}</strong></td><td>{{ booking.customer_name }}</td><td>{{ booking.laborer_name }}</td><td>{{ booking.service_name or '-' }}</td><td>{{ booking.scheduled_date or '-' }}</td><td><span class="status {{ booking.job_status|lower }}">{{ booking.job_status }}</span></td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<div class="empty">No bookings found.</div>{% endif %}</section>
+
+  <section class="section" id="reviews"><div class="section-head"><div><h2>Recent Customer Reviews</h2><p>Latest ratings submitted by customers.</p></div><span class="pill">{{ recent_reviews|length }} review(s)</span></div>
+  {% if recent_reviews %}<div class="table-wrap"><table><thead><tr><th>Customer</th><th>Laborer</th><th>Booking</th><th>Rating</th><th>Review</th><th>Date</th></tr></thead><tbody>
+  {% for review in recent_reviews %}<tr><td>{{ review.customer_name }}</td><td>{{ review.laborer_name }}</td><td>#{{ review.booking_id }}</td><td><span style="color:#f2a51a">{{ '★' * review.rating }}</span> ({{ review.rating }}/5)</td><td>{{ review.review or 'No written comment' }}</td><td>{{ review.created_at or '-' }}</td></tr>{% endfor %}
+  </tbody></table></div>{% else %}<div class="empty">No reviews submitted yet.</div>{% endif %}</section>
+  <footer class="footer">© 2026 LaborConnect. All Rights Reserved.</footer>
+</main></div>
+{% endblock %}

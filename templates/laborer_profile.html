@@ -1,0 +1,188 @@
+
+{% extends "base.html" %}
+
+{% block title %}My Profile | LaborConnect{% endblock %}
+
+{% block content %}
+
+<div class="profile-page">
+
+    <div class="profile-container">
+
+        <div class="profile-header">
+            <div>
+                <span class="profile-tag">LABORER ACCOUNT</span>
+                <h1>My Professional Profile</h1>
+                <p>Show customers your skills and professional services.</p>
+            </div>
+
+            <a href="{{ url_for('laborer_dashboard') }}"
+               class="back-dashboard">
+                ← Dashboard
+            </a>
+        </div>
+
+        <div class="profile-form-card">
+
+            <div class="profile-form-heading">
+                <h2>Professional Information</h2>
+                <p>Complete your profile to help customers find you.</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endwith %}
+
+            <form method="POST"
+                  action="{{ url_for('laborer_profile') }}">
+
+                <div class="profile-form-group">
+
+                    <label for="category">Service Category *</label>
+
+                    <select name="category" id="category" required>
+                        <option value="">Select your category</option>
+
+                        {% for item in [
+                            'Plumbing',
+                            'Electrical',
+                            'Carpentry',
+                            'Painting',
+                            'Cleaning',
+                            'Construction',
+                            'Gardening',
+                            'Other'
+                        ] %}
+                            <option value="{{ item }}"
+                                {% if profile and profile.category == item %}selected{% endif %}>
+                                {{ item }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                </div>
+
+
+
+                <div class="profile-form-group">
+                    <label for="district">District *</label>
+                    <select name="district" id="district" required>
+                        <option value="">Select your district</option>
+                        {% for item in [
+                            'Ampara', 'Anuradhapura', 'Badulla', 'Batticaloa',
+                            'Colombo', 'Galle', 'Gampaha', 'Hambantota', 'Jaffna',
+                            'Kalutara', 'Kandy', 'Kegalle', 'Kilinochchi',
+                            'Kurunegala', 'Mannar', 'Matale', 'Matara',
+                            'Monaragala', 'Mullaitivu', 'Nuwara Eliya',
+                            'Polonnaruwa', 'Puttalam', 'Ratnapura',
+                            'Trincomalee', 'Vavuniya'
+                        ] %}
+                            <option value="{{ item }}" {% if district == item %}selected{% endif %}>{{ item }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="profile-form-group">
+                    <label for="experience_years">Work Experience (Years) *</label>
+                    <input type="number" name="experience_years" id="experience_years"
+                           min="0" max="50" step="1" required
+                           value="{{ profile.experience_years if profile and profile.experience_years is not none else 0 }}"
+                           placeholder="e.g. 5">
+                    <small>Enter your total years of work experience.</small>
+                </div>
+
+                <div class="profile-form-group">
+
+                    <label for="skills">Your Skills *</label>
+
+                    <textarea
+                        name="skills"
+                        id="skills"
+                        rows="4"
+                        placeholder="Example: Pipe installation, water leak repairs..."
+                        required>{{ profile.skills if profile else '' }}</textarea>
+
+                    <small>Describe your professional skills.</small>
+
+                </div>
+
+
+                <div class="profile-form-group">
+
+                    <label for="daily_wage">Daily Wage (LKR) *</label>
+
+                    <input
+                        type="number"
+                        name="daily_wage"
+                        id="daily_wage"
+                        min="0"
+                        step="0.01"
+                        placeholder="Example: 3500"
+                        value="{{ profile.daily_wage if profile and profile.daily_wage is not none else '' }}"
+                        required>
+
+                </div>
+
+
+                <div class="profile-form-group">
+
+                    <label for="availability_status">Availability Status</label>
+
+                    <select name="availability_status"
+                            id="availability_status">
+
+                        <option value="1"
+                            {% if not profile or profile.availability_status == 1 %}selected{% endif %}>
+                            Available for Work
+                        </option>
+
+                        <option value="0"
+                            {% if profile and profile.availability_status == 0 %}selected{% endif %}>
+                            Currently Unavailable
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="profile-form-group">
+
+                    <label for="description">About Yourself *</label>
+
+                    <textarea
+                        name="description"
+                        id="description"
+                        rows="5"
+                        placeholder="Tell customers about your experience and services..."
+                        required>{{ profile.description if profile else '' }}</textarea>
+
+                </div>
+
+
+                <div class="profile-form-actions">
+
+                    <a href="{{ url_for('laborer_dashboard') }}"
+                       class="cancel-profile-btn">
+                        Cancel
+                    </a>
+
+                    <button type="submit" class="save-profile-btn">
+                        Save Profile →
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

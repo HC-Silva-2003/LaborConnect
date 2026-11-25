@@ -1,0 +1,48 @@
+
+{% extends "base.html" %}
+
+{% block title %}Login | LaborConnect{% endblock %}
+
+{% block content %}
+
+<div class="auth-page">
+
+    <div class="auth-card">
+
+        <a href="/" class="logo">Labor<span>Connect</span></a>
+
+        <h2>Welcome Back!</h2>
+        <p class="auth-subtitle">Login to your account.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('login') }}">
+
+            <label>Email Address</label>
+            <input type="email" name="email"
+                   placeholder="Enter your email" required>
+
+            <label>Password</label>
+            <input type="password" name="password"
+                   placeholder="Enter your password" required>
+
+            <button type="submit" class="auth-submit">
+                Login
+            </button>
+
+        </form>
+
+        <p class="auth-footer">
+            Don't have an account?
+            <a href="{{ url_for('register') }}">Register Now</a>
+        </p>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,309 @@
+
+{% extends "base.html" %}
+
+{% block title %}My Services | LaborConnect{% endblock %}
+
+{% block content %}
+
+<div class="services-page">
+
+    <div class="services-container">
+
+        <!-- HEADER -->
+        <div class="services-header">
+
+            <div>
+                <span class="profile-tag">LABORER WORKSPACE</span>
+                <h1>My Services</h1>
+                <p>Manage the professional services you offer to customers.</p>
+            </div>
+
+            <a href="{{ url_for('laborer_dashboard') }}"
+               class="back-dashboard">
+                ← Dashboard
+            </a>
+
+        </div>
+
+
+        <!-- FLASH MESSAGES -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="service-alert {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+
+        <!-- ADD / EDIT SERVICE FORM -->
+        <section class="service-form-card">
+
+            <div class="service-card-heading">
+
+                <div>
+                    <h2>
+                        {% if edit_service %}
+                            Edit Service
+                        {% else %}
+                            Add New Service
+                        {% endif %}
+                    </h2>
+
+                    <p>Enter your service information below.</p>
+                </div>
+
+                <span class="service-heading-icon">🔧</span>
+
+            </div>
+
+
+            <form method="POST"
+                  action="{% if edit_service %}{{ url_for('edit_service', service_id=edit_service.service_id) }}{% else %}{{ url_for('add_service') }}{% endif %}">
+
+                <div class="service-form-grid">
+
+                    <div class="service-field">
+
+                        <label for="service_name">Service Name *</label>
+
+                        <input
+                            type="text"
+                            id="service_name"
+                            name="service_name"
+                            maxlength="150"
+                            value="{{ edit_service.service_name if edit_service else '' }}"
+                            placeholder="Example: Home Plumbing Repair"
+                            required>
+
+                    </div>
+
+
+                    <div class="service-field">
+
+                        <label for="category">Service Category *</label>
+
+                        <select name="category" id="category" required>
+
+                            <option value="">Select Category</option>
+
+                            {% for item in [
+                                'Plumbing',
+                                'Electrical',
+                                'Carpentry',
+                                'Painting',
+                                'Cleaning',
+                                'Construction',
+                                'Gardening',
+                                'Other'
+                            ] %}
+
+                                <option value="{{ item }}"
+                                    {% if edit_service and edit_service.category == item %}selected{% endif %}>
+                                    {{ item }}
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="service-field">
+
+                        <label for="price">Service Price (LKR) *</label>
+
+                        <input
+                            type="number"
+                            id="price"
+                            name="price"
+                            min="0.01"
+                            max="99999999.99"
+                            step="0.01"
+                            value="{{ edit_service.price if edit_service else '' }}"
+                            placeholder="Example: 2500"
+                            required>
+
+                    </div>
+
+
+                    <div class="service-field">
+
+                        <label for="availability_status">Availability</label>
+
+                        <select name="availability_status"
+                                id="availability_status">
+
+                            <option value="1"
+                                {% if not edit_service or edit_service.availability_status == 1 %}selected{% endif %}>
+                                Available
+                            </option>
+
+                            <option value="0"
+                                {% if edit_service and edit_service.availability_status == 0 %}selected{% endif %}>
+                                Unavailable
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="service-field full-width">
+
+                        <label for="description">Service Description *</label>
+
+                        <textarea
+                            id="description"
+                            name="description"
+                            rows="4"
+                            placeholder="Describe the service you provide..."
+                            required>{{ edit_service.description if edit_service else '' }}</textarea>
+
+                    </div>
+
+                </div>
+
+
+                <div class="service-form-actions">
+
+                    {% if edit_service %}
+
+                        <a href="{{ url_for('my_services') }}"
+                           class="service-cancel-btn">
+                            Cancel
+                        </a>
+
+                    {% endif %}
+
+                    <button type="submit" class="service-submit-btn">
+
+                        {% if edit_service %}
+                            Update Service
+                        {% else %}
+                            + Add Service
+                        {% endif %}
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- SERVICES LIST -->
+        <section class="my-services-section">
+
+            <div class="my-services-heading">
+
+                <div>
+                    <h2>My Service Listings</h2>
+                    <p>All services registered under your account.</p>
+                </div>
+
+                <span class="service-count">
+                    {{ services|length }} Services
+                </span>
+
+            </div>
+
+
+            {% if services %}
+
+                <div class="services-grid">
+
+                    {% for service in services %}
+
+                        <div class="service-item-card">
+
+                            <div class="service-item-top">
+
+                                <span class="service-item-icon">🔧</span>
+
+                                {% if service.availability_status == 1 %}
+
+                                    <span class="status-available">
+                                        Available
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="status-unavailable">
+                                        Unavailable
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <span class="service-category">
+                                {{ service.category }}
+                            </span>
+
+                            <h3>{{ service.service_name }}</h3>
+
+                            <p class="service-description">
+                                {{ service.description }}
+                            </p>
+
+
+                            <div class="service-price">
+                                Rs. {{ "%.2f"|format(service.price|float) }}
+                            </div>
+
+
+                            <div class="service-item-actions">
+
+                                <a href="{{ url_for('edit_service', service_id=service.service_id) }}"
+                                   class="edit-service-btn">
+                                    Edit
+                                </a>
+
+
+                                <form method="POST"
+                                      action="{{ url_for('delete_service', service_id=service.service_id) }}"
+                                      onsubmit="return confirm('Are you sure you want to delete this service?');">
+
+                                    <button type="submit"
+                                            class="delete-service-btn">
+                                        Delete
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="no-services">
+
+                    <div>🛠️</div>
+
+                    <h3>No Services Added Yet</h3>
+
+                    <p>
+                        Start by adding your first professional service
+                        using the form above.
+                    </p>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </div>
+
+</div>
+
+{% endblock %}

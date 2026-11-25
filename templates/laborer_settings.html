@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Account Settings | LaborConnect{% endblock %}
+
+{% block content %}
+<style>
+.settings-page{min-height:100vh;background:#f3f6fb;padding:42px 24px 70px}
+.settings-container{max-width:1050px;margin:0 auto}
+.settings-header{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:28px}
+.settings-eyebrow{color:#2586e8;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin:0 0 8px}
+.settings-header h1{color:#142f50;font-size:32px;margin:0 0 8px}
+.settings-header p{color:#8192a8;margin:0}
+.settings-back{color:#2586e8;text-decoration:none;font-weight:700}
+.settings-alert{padding:13px 16px;border-radius:9px;margin-bottom:16px}
+.settings-alert.success{background:#e4f7ec;color:#087443}
+.settings-alert.error{background:#ffe9e9;color:#b42318}
+.settings-card{background:#fff;border:1px solid #e2eaf4;border-radius:18px;padding:30px;margin-bottom:22px;box-shadow:0 10px 30px rgba(20,47,80,.04)}
+.settings-card-heading{display:flex;align-items:center;gap:15px;padding-bottom:20px;margin-bottom:22px;border-bottom:1px solid #edf1f6}
+.settings-icon{width:48px;height:48px;border-radius:13px;background:#e8f2ff;display:grid;place-items:center;font-size:23px}
+.settings-card h2{font-size:21px;color:#142f50;margin:0 0 5px}
+.settings-card-heading p{margin:0;color:#8192a8;font-size:14px}
+.settings-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:19px}
+.settings-field{display:flex;flex-direction:column;gap:8px}
+.settings-field.full{grid-column:1/-1}
+.settings-field label{font-weight:700;color:#263f5c;font-size:14px}
+.settings-field input{width:100%;box-sizing:border-box;padding:13px 14px;border:1px solid #d9e3ef;border-radius:9px;font-size:15px;color:#193653;background:#fff;outline:none}
+.settings-field input:focus{border-color:#2586e8;box-shadow:0 0 0 3px rgba(37,134,232,.12)}
+.settings-field input[readonly]{background:#f5f7fa;color:#71839a}
+.settings-hint{font-size:12px;color:#8192a8;margin:0}
+.settings-actions{display:flex;justify-content:flex-end;margin-top:22px}
+.settings-button{border:0;border-radius:9px;background:#2586e8;color:#fff;font-weight:700;padding:13px 22px;font-size:14px;cursor:pointer}
+.settings-button:hover{background:#176fc5}
+.settings-security-note{background:#f1f7ff;border-radius:10px;padding:14px 16px;color:#54708e;font-size:13px;margin-top:18px}
+@media(max-width:700px){.settings-page{padding:28px 14px}.settings-header{align-items:flex-start;flex-direction:column}.settings-header h1{font-size:27px}.settings-card{padding:21px}.settings-form-grid{grid-template-columns:1fr}.settings-field.full{grid-column:auto}}
+</style>
+
+<div class="settings-page">
+    <div class="settings-container">
+        <header class="settings-header">
+            <div>
+                <p class="settings-eyebrow">Laborer Account</p>
+                <h1>Account Settings</h1>
+                <p>Manage your personal account information and password.</p>
+            </div>
+            <a class="settings-back" href="{{ url_for('laborer_dashboard') }}">← Back to Dashboard</a>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="settings-alert {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <section class="settings-card">
+            <div class="settings-card-heading">
+                <div class="settings-icon">👤</div>
+                <div>
+                    <h2>Personal Information</h2>
+                    <p>Update the contact details connected to your account.</p>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ url_for('laborer_settings') }}">
+                <input type="hidden" name="action" value="update_account">
+                <div class="settings-form-grid">
+                    <div class="settings-field">
+                        <label for="full_name">Full Name</label>
+                        <input id="full_name" name="full_name" type="text" minlength="3" maxlength="100" value="{{ account.full_name }}" required>
+                    </div>
+                    <div class="settings-field">
+                        <label for="email">Email Address</label>
+                        <input id="email" type="email" value="{{ account.email }}" readonly>
+                        <p class="settings-hint">Email address cannot be changed from this page.</p>
+                    </div>
+                    <div class="settings-field">
+                        <label for="phone">Mobile Number</label>
+                        <input id="phone" name="phone" type="tel" inputmode="numeric" pattern="07[0-9]{8}" maxlength="10" value="{{ account.phone }}" required>
+                        <p class="settings-hint">Use a Sri Lankan mobile number: 07XXXXXXXX.</p>
+                    </div>
+                    <div class="settings-field">
+                        <label for="location">Location</label>
+                        <input id="location" name="location" type="text" maxlength="100" value="{{ account.location }}" required>
+                    </div>
+                </div>
+                <div class="settings-actions">
+                    <button class="settings-button" type="submit">Save Account Details →</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="settings-card">
+            <div class="settings-card-heading">
+                <div class="settings-icon">🔒</div>
+                <div>
+                    <h2>Change Password</h2>
+                    <p>Use your current password to set a new secure password.</p>
+                </div>
+            </div>
+
+            <form method="POST" action="{{ url_for('laborer_settings') }}">
+                <input type="hidden" name="action" value="change_password">
+                <div class="settings-form-grid">
+                    <div class="settings-field full">
+                        <label for="current_password">Current Password</label>
+                        <input id="current_password" name="current_password" type="password" autocomplete="current-password" required>
+                    </div>
+                    <div class="settings-field">
+                        <label for="new_password">New Password</label>
+                        <input id="new_password" name="new_password" type="password" minlength="8" autocomplete="new-password" required>
+                        <p class="settings-hint">At least 8 characters.</p>
+                    </div>
+                    <div class="settings-field">
+                        <label for="confirm_password">Confirm New Password</label>
+                        <input id="confirm_password" name="confirm_password" type="password" minlength="8" autocomplete="new-password" required>
+                    </div>
+                </div>
+                <div class="settings-actions">
+                    <button class="settings-button" type="submit">Update Password →</button>
+                </div>
+            </form>
+            <div class="settings-security-note">Security tip: Never share your password with anyone. LaborConnect will never ask you to send your password by email or message.</div>
+        </section>
+    </div>
+</div>
+{% endblock %}

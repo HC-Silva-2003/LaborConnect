@@ -1,0 +1,480 @@
+
+{% extends "base.html" %}
+
+{% block title %}Manage Users | LaborConnect{% endblock %}
+
+{% block content %}
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #f3f6fb;
+    color: #183452;
+    font-family: Arial, sans-serif;
+}
+
+.admin-layout {
+    min-height: 100vh;
+    display: flex;
+}
+
+.sidebar {
+    width: 245px;
+    background: #153252;
+    color: white;
+    padding: 28px 20px;
+    flex-shrink: 0;
+}
+
+.brand {
+    font-size: 23px;
+    font-weight: 800;
+    margin: 4px 10px;
+}
+
+.sub {
+    color: #b8cce2;
+    font-size: 13px;
+    margin: 7px 10px 35px;
+}
+
+.menu-label {
+    color: #8fb4dc;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin: 15px 10px;
+}
+
+.nav a {
+    display: block;
+    color: #eaf2fb;
+    text-decoration: none;
+    padding: 13px 14px;
+    margin: 5px 0;
+    border-radius: 9px;
+    font-size: 14px;
+}
+
+.nav a:hover,
+.nav a.active {
+    background: #2586e8;
+}
+
+.nav .logout {
+    color: #ffb7b7;
+}
+
+.main {
+    flex: 1;
+    min-width: 0;
+    padding: 30px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+h1 {
+    margin: 0 0 7px;
+    font-size: 28px;
+}
+
+.muted {
+    color: #7b8da5;
+    margin: 0;
+}
+
+.admin-user {
+    background: white;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-weight: bold;
+}
+
+.section {
+    background: white;
+    border: 1px solid #e5edf6;
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 22px;
+    box-shadow: 0 5px 18px #173b6008;
+}
+
+.section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.section-head h2 {
+    margin: 0 0 6px;
+    font-size: 21px;
+}
+
+.section-head p {
+    margin: 0;
+    color: #8293a9;
+    font-size: 13px;
+}
+
+.pill {
+    background: #e8f3ff;
+    color: #1474cc;
+    padding: 9px 13px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.filters {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.filters input,
+.filters select {
+    padding: 12px 14px;
+    border: 1px solid #dce5f0;
+    border-radius: 9px;
+    font-size: 14px;
+    outline: none;
+    background: #f8faff;
+}
+
+.filters input {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filters input:focus,
+.filters select:focus {
+    border-color: #2586e8;
+}
+
+.btn {
+    border: none;
+    border-radius: 9px;
+    padding: 12px 20px;
+    background: #2586e8;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn:hover {
+    background: #176fc5;
+}
+
+.reset-btn {
+    background: #e9eef5;
+    color: #405a76;
+}
+
+.reset-btn:hover {
+    background: #dce5ef;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 750px;
+}
+
+th {
+    text-align: left;
+    background: #f3f6fb;
+    color: #506681;
+    padding: 14px 12px;
+    font-size: 13px;
+}
+
+td {
+    padding: 16px 12px;
+    border-bottom: 1px solid #edf1f6;
+    color: #526a85;
+    font-size: 13px;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+.user-name {
+    color: #183452;
+    font-weight: bold;
+}
+
+.role {
+    display: inline-block;
+    padding: 6px 11px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.role.customer {
+    background: #e8f3ff;
+    color: #1474cc;
+}
+
+.role.laborer {
+    background: #e8f7ee;
+    color: #168047;
+}
+
+.empty {
+    text-align: center;
+    padding: 35px;
+    color: #8999ad;
+}
+
+.footer {
+    text-align: center;
+    color: #8b9bb0;
+    font-size: 12px;
+    padding: 15px;
+}
+
+@media(max-width: 700px) {
+    .admin-layout {
+        display: block;
+    }
+
+    .sidebar {
+        width: 100%;
+        padding: 18px;
+    }
+
+    .sub {
+        margin-bottom: 14px;
+    }
+
+    .nav {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .nav a {
+        padding: 10px;
+    }
+
+    .main {
+        padding: 16px;
+    }
+
+    .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .section {
+        padding: 17px;
+    }
+}
+</style>
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="brand">LaborConnect</div>
+        <div class="sub">Administration Panel</div>
+
+        <div class="menu-label">MAIN MENU</div>
+
+        <nav class="nav">
+
+            <a href="{{ url_for('admin_dashboard') }}">
+                ▦ &nbsp; Dashboard
+            </a>
+
+            <a class="active" href="{{ url_for('admin_users') }}">
+                ♙ &nbsp; Users
+            </a>
+
+            <a href="{{ url_for('admin_dashboard') }}#services">
+                🔧 &nbsp; Services
+            </a>
+
+            <a href="{{ url_for('admin_dashboard') }}#bookings">
+                ▣ &nbsp; Bookings
+            </a>
+
+            <a href="{{ url_for('admin_dashboard') }}#reviews">
+                ⭐ &nbsp; Reviews
+            </a>
+
+            <a class="logout" href="{{ url_for('logout') }}">
+                ↪ &nbsp; Logout
+            </a>
+
+        </nav>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+                <h1>User Management</h1>
+                <p class="muted">
+                    View and manage registered customers and laborers.
+                </p>
+            </div>
+
+            <div class="admin-user">
+                👤 {{ session.get('full_name', 'Administrator') }}
+            </div>
+
+        </header>
+
+        <!-- USERS SECTION -->
+        <section class="section">
+
+            <div class="section-head">
+
+                <div>
+                    <h2>Registered Users</h2>
+                    <p>All customer and laborer accounts.</p>
+                </div>
+
+                <span class="pill">
+                    {{ users|length }} user(s)
+                </span>
+
+            </div>
+
+            <!-- SEARCH AND FILTER -->
+            <form method="GET"
+                  action="{{ url_for('admin_users') }}"
+                  class="filters">
+
+                <input
+                    type="text"
+                    name="q"
+                    placeholder="Search name, email, phone or location..."
+                    value="{{ search_text }}"
+                >
+
+                <select name="role">
+
+                    <option value="">All Users</option>
+
+                    <option value="customer"
+                        {% if selected_role == 'customer' %}selected{% endif %}>
+                        Customers
+                    </option>
+
+                    <option value="laborer"
+                        {% if selected_role == 'laborer' %}selected{% endif %}>
+                        Laborers
+                    </option>
+
+                </select>
+
+                <button type="submit" class="btn">
+                    Search
+                </button>
+
+                <a href="{{ url_for('admin_users') }}"
+                   class="btn reset-btn">
+                    Reset
+                </a>
+
+            </form>
+
+            <!-- USERS TABLE -->
+            <div class="table-wrap">
+
+                {% if users %}
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Full Name</th>
+                            <th>Email Address</th>
+                            <th>Phone</th>
+                            <th>Role</th>
+                            <th>Location</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for user in users %}
+
+                        <tr>
+
+                            <td>#{{ user.user_id }}</td>
+
+                            <td class="user-name">
+                                {{ user.full_name }}
+                            </td>
+
+                            <td>{{ user.email }}</td>
+
+                            <td>{{ user.phone or '-' }}</td>
+
+                            <td>
+                                <span class="role {{ user.role }}">
+                                    {{ user.role|title }}
+                                </span>
+                            </td>
+
+                            <td>{{ user.location or '-' }}</td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+                {% else %}
+
+                <div class="empty">
+                    <h3>No Users Found</h3>
+                    <p>Try changing your search or filter options.</p>
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </section>
+
+        <footer class="footer">
+            © 2026 LaborConnect. All Rights Reserved.
+        </footer>
+
+    </main>
+
+</div>
+
+{% endblock %}

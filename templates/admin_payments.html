@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Payment Management | LaborConnect{% endblock %}
+{% block content %}
+<style>
+.payment-page{max-width:1200px;margin:30px auto;padding:0 20px;color:#183452;font-family:Arial,sans-serif}
+.payment-header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.payment-header h1{margin:0 0 6px;font-size:28px}.payment-muted{margin:0;color:#7b8da5;font-size:14px}
+.back-link{display:inline-block;text-decoration:none;background:#e8f2ff;color:#176fc1;padding:10px 15px;border-radius:9px;font-weight:700;font-size:13px}
+.payment-card{background:#fff;border:1px solid #e5edf6;border-radius:15px;padding:20px;box-shadow:0 5px 18px #173b6008}
+.payment-table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:900px}th{text-align:left;background:#f3f6fb;color:#506681;padding:13px 11px;font-size:12px}td{padding:14px 11px;border-bottom:1px solid #edf1f6;color:#526a85;font-size:13px;vertical-align:middle}tr:last-child td{border-bottom:0}
+.payment-status{display:inline-block;padding:6px 10px;border-radius:20px;font-size:11px;font-weight:700}.payment-status.pending{background:#fff4df;color:#a86a00}.payment-status.paid{background:#e8f7ee;color:#168047}
+.confirm-form{display:flex;gap:8px;align-items:center;min-width:230px}.confirm-form select{padding:9px;border:1px solid #d8e2ef;border-radius:8px;color:#29445f;background:#fff}.confirm-form button{border:0;border-radius:8px;padding:10px 12px;background:#168047;color:#fff;font-weight:700;cursor:pointer}.confirm-form button:hover{background:#116b39}.confirmed-text{color:#168047;font-weight:700}.empty{text-align:center;padding:35px;color:#8999ad}
+@media(max-width:650px){.payment-page{padding:0 12px}.payment-card{padding:13px}.payment-header h1{font-size:23px}}
+</style>
+<div class="payment-page">
+  <header class="payment-header">
+    <div><h1>Payment Management</h1><p class="payment-muted">Review customer payments and confirm received payments.</p></div>
+    <a class="back-link" href="{{ url_for('admin_dashboard') }}">← Back to Dashboard</a>
+  </header>
+
+  <section class="payment-card">
+    {% if payments %}
+    <div class="payment-table-wrap">
+      <table>
+        <thead><tr><th>Booking</th><th>Customer</th><th>Laborer</th><th>Service</th><th>Final Amount</th><th>Method</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+        {% for payment in payments %}
+          <tr>
+            <td><strong>#{{ payment.booking_id }}</strong></td>
+            <td>{{ payment.customer_name }}<br><small>{{ payment.customer_email }}</small></td>
+            <td>{{ payment.laborer_name }}</td>
+            <td>{{ payment.service_name or 'Requested service' }}</td>
+            <td><strong>Rs. {{ '%.2f'|format(payment.final_amount|float) }}</strong></td>
+            <td>{{ payment.payment_method or 'Not recorded' }}</td>
+            <td><span class="payment-status {{ payment.payment_status|lower }}">{{ payment.payment_status }}</span></td>
+            <td>
+              {% if payment.payment_status == 'Pending' %}
+              <form class="confirm-form" method="POST" action="{{ url_for('confirm_payment', booking_id=payment.booking_id) }}" onsubmit="return confirm('Confirm that payment for booking #{{ payment.booking_id }} has been received?');">
+                <select name="payment_method" required aria-label="Payment method">
+                  <option value="">Select method</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                </select>
+                <button type="submit">Confirm Paid</button>
+              </form>
+              {% else %}
+              <span class="confirmed-text">✓ Confirmed{% if payment.paid_at %}<br><small>{{ payment.paid_at }}</small>{% endif %}</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+      <div class="empty"><h3>No payment records yet</h3><p>Payments will appear here after laborers complete bookings and enter the final amount.</p></div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
